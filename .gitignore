@@ -1,0 +1,20 @@
+# Ignore the Library folder (Unity automatically regenerates it)
+Library/
+Temp/
+Logs/
+Obj/
+MemoryCaptures/
+
+# Ignore build folders
+Builds/
+Build/
+
+# Ignore user-specific settings
+UserSettings/
+*.userprefs
+*.sln
+*.csproj
+
+# Ignore Unity-generated meta files for hidden folders
+.DS_Store
+Thumbs.db
