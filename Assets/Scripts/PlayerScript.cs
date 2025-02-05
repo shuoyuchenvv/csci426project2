@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -12,10 +13,16 @@ public class PlayerScript : MonoBehaviour
     public float growthFactor = 0.1f;     // Size increase per enemy eaten
     public float slowDownFactor = 0.2f;   // Speed decrease per growth
 
+    // Effect settings
+    public float hitStopDuration = 0.5f;
+    public float shakeIntensity = 0.3f;
+    public float shakeDuration = 0.5f;
+
     // Private references
     private Rigidbody2D rb;
     private Vector2 movementInput;
     private CameraFollowSmooth cameraScript;
+    private SpriteRenderer spriteRenderer;
 
     // Start is called before the first frame update
     void Start()
@@ -26,6 +33,7 @@ public class PlayerScript : MonoBehaviour
         rb.linearDamping = drag;          // Apply water-like resistance
 
         cameraScript = FindAnyObjectByType<CameraFollowSmooth>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -62,15 +70,7 @@ public class PlayerScript : MonoBehaviour
             {
                 if (enemy.isSoul)
                 {
-                    Debug.Log("Soul fish caught the player! Ending game...");  // Debug log
-                    if (GameManager.Instance != null)
-                    {
-                        GameManager.Instance.EndGame();
-                    }
-                    else
-                    {
-                        Debug.LogError("GameManager instance not found!");  // Debug error
-                    }
+                    StartCoroutine(HandlePlayerCaught());
                 }
                 else if (enemy.IsLargerThan(transform))
                 {
@@ -84,6 +84,38 @@ public class PlayerScript : MonoBehaviour
                     Destroy(other.gameObject);
                 }
             }
+        }
+    }
+
+    IEnumerator HandlePlayerCaught()
+    {
+        Debug.Log("Player caught by soul!");
+
+        // Slow motion effect
+        Time.timeScale = 0.2f;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+        // Flash red
+        spriteRenderer.color = Color.red;
+
+        // Start shake effect
+        if (cameraScript != null)
+        {
+            StartCoroutine(cameraScript.ShakeCamera(shakeIntensity, shakeDuration));
+        }
+
+        // Wait for the slow motion effect
+        yield return new WaitForSecondsRealtime(hitStopDuration);
+
+        // Restore normal time
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
+
+        // Destroy player (pop effect)
+        Destroy(gameObject);
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.EndGame();
         }
     }
 
