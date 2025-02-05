@@ -23,6 +23,7 @@ public class PlayerScript : MonoBehaviour
     private Vector2 movementInput;
     private CameraFollowSmooth cameraScript;
     private SpriteRenderer spriteRenderer;
+    private AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +35,9 @@ public class PlayerScript : MonoBehaviour
 
         cameraScript = FindAnyObjectByType<CameraFollowSmooth>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // audio
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -80,7 +84,14 @@ public class PlayerScript : MonoBehaviour
                 else
                 {
                     Debug.Log("Smaller enemy encountered, consuming");  // Debug log
+                    // grow a bit
                     Grow();
+                    // play audio
+                    if (audioSource != null)
+                    {
+                        audioSource.Play(); // play eating sound
+                    }
+                    // destroy smaller fish
                     Destroy(other.gameObject);
                 }
             }
